@@ -80,10 +80,6 @@ jobs:
     - name: Restore dependencies
       run: dotnet restore ${{ env.Test_Project_Path }} --verbosity detailed
 
-    # Проверка установленных пакетов
-    - name: Verify installed NuGet packages
-      run: dotnet list ${{ env.Test_Project_Path }} package
-
     # Компиляция проекта
     - name: Build project
       run: dotnet build ${{ env.Test_Project_Path }} --configuration ${{ matrix.configuration }} --no-restore --verbosity minimal
