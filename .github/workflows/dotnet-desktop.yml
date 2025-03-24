@@ -63,24 +63,16 @@ jobs:
       with:
         fetch-depth: 0
 
-    # Устанавливаем .NET SDK 8.0.x
     - name: Install .NET SDK
       uses: actions/setup-dotnet@v4
       with:
         dotnet-version: 8.0.x
 
-    # Очищаем кеш NuGet перед восстановлением пакетов
-    - name: Clear NuGet cache
-      run: dotnet nuget locals all --clear
-
-    # Восстанавливаем зависимости проекта
     - name: Restore dependencies
       run: dotnet restore ${{ env.Solution_Name }}
 
-    # Компилируем проект
     - name: Build the project
       run: dotnet build ${{ env.Solution_Name }} --configuration ${{ matrix.configuration }} --no-restore
 
-    # Запускаем тесты (если есть тестовый проект)
     - name: Execute unit tests
       run: dotnet test ${{ env.Solution_Name }} --configuration ${{ matrix.configuration }} --no-build
