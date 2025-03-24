@@ -19,58 +19,6 @@
 
 ```dotnet add package ClassLibrary2```
 
-## Использование библиотеки
-Для использования методов библиотеки, необходимо добавить ссылку на ClassLibrary2. Пример использования:
-```
-using ClassLibrary2;
-
-public class Program
-{
-    public static void Main()
-    {
-        
-    }
-}
-```
-
-## Настройка CI/CD
-```
-name: .NET Core Desktop
-on:
-  push:
-    branches: [ "master" ]
-  pull_request:
-    branches: [ "master" ]
-
-jobs:
-  build:
-
-    strategy:
-      matrix:
-        configuration: [Debug]
-
-    runs-on: windows-latest  
-
-    env:
-      Solution_Name: ClassLibrary2.sln  
-      Test_Project_Path: ClassLibrary2/ClassLibrary2.csproj  
-
-    steps:
-    - name: Checkout repository
-      uses: actions/checkout@v4
-      with:
-        fetch-depth: 0
-
-    - name: Install .NET SDK
-      uses: actions/setup-dotnet@v4
-      with:
-        dotnet-version: 8.0.x
-
-
-    - name: Execute unit tests
-      run: dotnet test ${{ env.Solution_Name }} --configuration ${{ matrix.configuration }} --no-build
-```
-
 ## Для того чтобы запустить юнит-тесты, выполните команду в терминале:
 
 ```dotnet test ClassLibrary2.sln --configuration Debug --no-build```
