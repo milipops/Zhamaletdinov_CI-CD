@@ -71,8 +71,6 @@ jobs:
     - name: Restore dependencies
       run: dotnet restore ${{ env.Solution_Name }} --source https://api.nuget.org/v3/index.json
 
-    - name: Build the project
-      run: dotnet build ${{ env.Solution_Name }} --configuration ${{ matrix.configuration }} --no-restore
 
     - name: Execute unit tests
       run: dotnet test ${{ env.Solution_Name }} --configuration ${{ matrix.configuration }} --no-build
