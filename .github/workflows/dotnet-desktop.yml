@@ -69,7 +69,6 @@ jobs:
         dotnet-version: 8.0.x
 
 
-
-
     - name: Execute unit tests
-      run: dotnet test ${{ env.Solution_Name }} --configuration ${{ matrix.configuration }} --no-build
+      run:  dotnet test ClassLibrary2.sln --configuration Debug --no-restore
+      
