@@ -68,8 +68,7 @@ jobs:
       with:
         dotnet-version: 8.0.x
 
-    - name: Restore dependencies
-      run: dotnet restore ${{ env.Solution_Name }} --source https://api.nuget.org/v3/index.json
+
 
 
     - name: Execute unit tests
