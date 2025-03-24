@@ -36,7 +36,7 @@
 # For a complete CI/CD sample to get started with GitHub Action workflows for Desktop Applications,
 # refer to https://github.com/microsoft/github-actions-for-desktop-apps
 
-name: .NET Core Desktop
+name: .NET Core Build
 
 on:
   push:
@@ -55,63 +55,39 @@ jobs:
     runs-on: windows-latest  
 
     env:
-      Solution_Name: MySolution.sln  # Укажите реальное имя вашей .sln
-      Test_Project_Path: MyTests/MyTests.csproj  # Укажите реальный путь к тестовому проекту
-      Wap_Project_Directory: MyWpfApp.Package
-      Wap_Project_Path: MyWpfApp.Package/MyWpfApp.Package.wapproj
+      Project_Name: ClassLibrary2  # Указываем ваш проект
+      Solution_Name: ClassLibrary2.sln  # Если у вас есть .sln-файл
+      Test_Project_Path: ClassLibrary2/ClassLibrary2.csproj  # Путь к вашему проекту
+      DOTNET_VERSION: 8.0.x  # Версия .NET SDK
 
     steps:
-    - name: Checkout
+    - name: Checkout repository
       uses: actions/checkout@v4
       with:
         fetch-depth: 0
 
     # Установка .NET SDK
-    - name: Install .NET Core
+    - name: Setup .NET
       uses: actions/setup-dotnet@v4
       with:
-        dotnet-version: 8.0.x
+        dotnet-version: ${{ env.DOTNET_VERSION }}
+
+    # Очистка NuGet-кэша перед восстановлением
+    - name: Clear NuGet cache
+      run: dotnet nuget locals all --clear
 
     # Восстановление зависимостей
     - name: Restore dependencies
-      run: dotnet restore
+      run: dotnet restore ${{ env.Test_Project_Path }} --verbosity detailed
 
-    # Сборка проекта
-    - name: Build
-      run: dotnet build --configuration ${{ matrix.configuration }} --no-restore
+    # Проверка установленных пакетов
+    - name: Verify installed NuGet packages
+      run: dotnet list ${{ env.Test_Project_Path }} package
 
-    # Установка MSBuild
-    - name: Setup MSBuild.exe
-      uses: microsoft/setup-msbuild@v2
+    # Компиляция проекта
+    - name: Build project
+      run: dotnet build ${{ env.Test_Project_Path }} --configuration ${{ matrix.configuration }} --no-restore --verbosity minimal
 
-    # Запуск юнит-тестов
-    - name: Execute unit tests
-      run: dotnet test --configuration ${{ matrix.configuration }}
-
-    # Восстановление проекта для MSBuild
-    - name: Restore the application
-      run: msbuild ${{ env.Solution_Name }} /t:Restore /p:Configuration=${{ matrix.configuration }}
-
-    # Декодирование сертификата pfx
-    - name: Decode the pfx
-      if: env.Base64_Encoded_Pfx != ''
-      run: |
-        $pfx_cert_byte = [System.Convert]::FromBase64String("${{ secrets.Base64_Encoded_Pfx }}")
-        $certificatePath = Join-Path -Path ${{ env.Wap_Project_Directory }} -ChildPath GitHubActionsWorkflow.pfx
-        [IO.File]::WriteAllBytes("$certificatePath", $pfx_cert_byte)
-
-    # Создание MSIX пакета
-    - name: Create the app package
-      run: msbuild ${{ env.Wap_Project_Path }} /p:Configuration=${{ matrix.configuration }} /p:UapAppxPackageBuildMode=StoreUpload /p:AppxBundle=Always /p:AppxBundle_Platforms="x86|x64" /p:PackageCertificateKeyFile=GitHubActionsWorkflow.pfx /p:PackageCertificatePassword=${{ secrets.Pfx_Key }}
-
-    # Удаление pfx после сборки
-    - name: Remove the pfx
-      if: env.Base64_Encoded_Pfx != ''
-      run: Remove-Item -path ${{ env.Wap_Project_Directory }}\GitHubActionsWorkflow.pfx
-
-    # Загрузка артефактов сборки
-    - name: Upload build artifacts
-      uses: actions/upload-artifact@v4
-      with:
-        name: MSIX Package
-        path: ${{ env.Wap_Project_Directory }}\AppPackages
+    # Запуск тестов (если есть)
+    - name: Run unit tests
+      run: dotnet test ${{ env.Test_Project_Path }} --configuration ${{ matrix.configuration }} --no-build --verbosity minimal
