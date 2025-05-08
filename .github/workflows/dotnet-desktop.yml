@@ -57,18 +57,33 @@ jobs:
       uses: actions/checkout@v4
       with:
         fetch-depth: 0
+        # Ключевое исправление 1: Получаем всю историю для packages.config
+        lfs: true
+        submodules: true
 
     - name: Install .NET SDK
       uses: actions/setup-dotnet@v4
       with:
         dotnet-version: 8.0.x
 
-    # Ключевое исправление: восстановление пакетов перед сборкой
+    # Ключевое исправление 2: Явное восстановление с указанием папки пакетов
     - name: Restore NuGet packages
-      run: dotnet restore ${{ env.SOLUTION_NAME }}
+      run: |
+        dotnet restore ${{ env.SOLUTION_NAME }} --packages ./packages
+        # Альтернативный вариант для старых проектов:
+        nuget restore ${{ env.SOLUTION_NAME }} -PackagesDirectory ./packages
 
+    # Ключевое исправление 3: Сборка с указанием пути к пакетам
     - name: Build solution
-      run: dotnet build ${{ env.SOLUTION_NAME }} --configuration Debug --no-restore
+      run: dotnet build ${{ env.SOLUTION_NAME }} --configuration Debug -p:RestorePackagesPath=$(Build.SourcesDirectory)/packages
 
     - name: Execute unit tests
-      run: dotnet test ${{ env.TEST_PROJECT }} --configuration Debug --no-build
+      run: dotnet test ${{ env.TEST_PROJECT }} --configuration Debug --no-build --logger "trx;LogFileName=test-results.trx"
+
+    # Публикация результатов тестов
+    - name: Publish test results
+      uses: actions/upload-artifact@v3
+      if: always()
+      with:
+        name: test-results
+        path: **/TestResults/*.trx
