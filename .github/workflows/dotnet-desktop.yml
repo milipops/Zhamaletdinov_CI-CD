@@ -36,7 +36,7 @@
 # For a complete CI/CD sample to get started with GitHub Action workflows for Desktop Applications,
 # refer to https://github.com/microsoft/github-actions-for-desktop-apps
 
-name: .NET Core Desktop
+name: .NET Core Desktop CI
 
 on:
   push:
@@ -45,17 +45,12 @@ on:
     branches: [ "master" ]
 
 jobs:
-  build:
-
-    strategy:
-      matrix:
-        configuration: [Debug]
-
-    runs-on: windows-latest  
-
+  build-and-test:
+    runs-on: windows-latest
+    
     env:
-      Solution_Name: ClassLibrary2.sln  
-      Test_Project_Path: ClassLibrary2/ClassLibrary2.csproj
+      SOLUTION_NAME: ClassLibrary2.sln
+      TEST_PROJECT: ClassLibrary2/ClassLibrary2.csproj
 
     steps:
     - name: Checkout repository
@@ -68,9 +63,12 @@ jobs:
       with:
         dotnet-version: 8.0.x
 
-    - name: Build
-      run:  dotnet build ClassLibrary2.sln --configuration Debug --no-restore
-    - name: Execute unit tests
-      run:  dotnet test ClassLibrary2.sln --configuration Debug --no-restore
+    # Ключевое исправление: восстановление пакетов перед сборкой
+    - name: Restore NuGet packages
+      run: dotnet restore ${{ env.SOLUTION_NAME }}
 
-   
+    - name: Build solution
+      run: dotnet build ${{ env.SOLUTION_NAME }} --configuration Debug --no-restore
+
+    - name: Execute unit tests
+      run: dotnet test ${{ env.TEST_PROJECT }} --configuration Debug --no-build
