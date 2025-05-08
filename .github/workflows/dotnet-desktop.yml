@@ -49,13 +49,13 @@ jobs:
 
     strategy:
       matrix:
-        configuration: [Debug,Release]
+        configuration: [Debug]
 
     runs-on: windows-latest  
 
     env:
       Solution_Name: ClassLibrary2.sln  
-      Test_Project_Path: C:\Users\zhama.DESKTOP-TCOPQJ9\source\repos\ClassLibrary2\ClassLibrary2
+      Test_Project_Path: ClassLibrary2/ClassLibrary2.csproj
 
     steps:
     - name: Checkout repository
@@ -68,9 +68,13 @@ jobs:
       with:
         dotnet-version: 8.0.x
 
-
+    - name: Restore dependencies
+      run: dotnet restore ClassLibrary2/ClassLibrary2.csproj
+      
+    - name: Build
+      run: dotnet build ClassLibrary2.sln --configuration Debug --no-restore
+      
     - name: Execute unit tests
       run:  dotnet test ClassLibrary2.sln --configuration Debug --no-restore
 
-    - name: Build
-      run: dotnet build --configuration Debug --no-restore
+   
