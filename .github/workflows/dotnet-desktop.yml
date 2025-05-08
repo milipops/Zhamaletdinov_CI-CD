@@ -36,7 +36,7 @@
 # For a complete CI/CD sample to get started with GitHub Action workflows for Desktop Applications,
 # refer to https://github.com/microsoft/github-actions-for-desktop-apps
 
-name: .NET Core Desktop CI
+name: .NET Core Desktop
 
 on:
   push:
@@ -45,39 +45,34 @@ on:
     branches: [ "master" ]
 
 jobs:
-  build-and-test:
-    runs-on: windows-latest
-    
+  build:
+
+    strategy:
+      matrix:
+        configuration: [Debug]
+
+    runs-on: windows-latest  
+
     env:
-      SOLUTION_NAME: ClassLibrary2.sln
-      TEST_PROJECT: ClassLibrary2/ClassLibrary2.csproj
+      Solution_Name: ClassLibrary2.sln  
+      Test_Project_Path: ClassLibrary2/ClassLibrary2.csproj
 
     steps:
     - name: Checkout repository
-      uses: actions/checkout@v4
+      uses: actions/checkout@v3
       with:
         fetch-depth: 0
-        # Ключевое исправление 1: Получаем всю историю для packages.config
-        lfs: true
-        submodules: true
 
     - name: Install .NET SDK
       uses: actions/setup-dotnet@v4
       with:
-        dotnet-version: 8.0.x
+        dotnet-version: '8.0.*'
 
-    # Ключевое исправление 2: Явное восстановление с указанием папки пакетов
-    - name: Restore NuGet packages
-      run: |
-        dotnet restore ${{ env.SOLUTION_NAME }} --packages ./packages
-        # Альтернативный вариант для старых проектов:
-        nuget restore ${{ env.SOLUTION_NAME }} -PackagesDirectory ./packages
+    - name: Restore dependencies
+      run: dotnet restore ${{ env.Solution_Name }}
 
-    # Ключевое исправление 3: Сборка с указанием пути к пакетам
-    - name: Build solution
-      run: dotnet build ${{ env.SOLUTION_NAME }} --configuration Debug -p:RestorePackagesPath=$(Build.SourcesDirectory)/packages
-
+    - name: Build
+      run: dotnet build ${{ env.Solution_Name }} --configuration Debug
 
     - name: Execute unit tests
-      run: dotnet test ${{ env.TEST_PROJECT }} --configuration Debug --no-build --logger "trx;LogFileName=test-results.trx"
-
+      run: dotnet test ${{ env.Solution_Name }} --configuration Debug
