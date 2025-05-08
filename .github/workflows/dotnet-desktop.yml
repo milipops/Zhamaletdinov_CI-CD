@@ -55,7 +55,7 @@ jobs:
 
     env:
       Solution_Name: ClassLibrary2.sln  
-      Test_Project_Path: ClassLibrary2/ClassLibrary2.csproj  
+      Test_Project_Path: C:\Users\zhama.DESKTOP-TCOPQJ9\source\repos\ClassLibrary2\ClassLibrary2
 
     steps:
     - name: Checkout repository
@@ -73,4 +73,4 @@ jobs:
       run:  dotnet test ClassLibrary2.sln --configuration Debug --no-restore
 
     - name: Build
-      run: dotnet build --configuration Release --no-restore
+      run: dotnet build --configuration Debug --no-restore
