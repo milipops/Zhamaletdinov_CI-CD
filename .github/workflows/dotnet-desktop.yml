@@ -68,9 +68,12 @@ jobs:
       uses: actions/setup-dotnet@v4
       with:
         dotnet-version: '8.0.*'
+        
+    - name: Install NuGet
+      run: choco install nuget -y
 
-    - name: Restore dependencies
-      run: dotnet restore ${{ env.Solution_Name }}
+    - name: Restore dependencies with NuGet
+      run: nuget restore ${{ env.Solution_Name }}
 
     - name: Build
       run: dotnet build ${{ env.Solution_Name }} --configuration Debug
