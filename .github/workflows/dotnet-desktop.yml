@@ -68,6 +68,8 @@ jobs:
       uses: actions/setup-dotnet@v4
       with:
         dotnet-version: 8.0.x
-      
+        
+    - name: Build
+      run:  dotnet build ClassLibrary2.sln --configuration Debug --no-restore
     - name: Execute unit tests
       run:  dotnet test ClassLibrary2.sln --configuration Debug --no-restore
