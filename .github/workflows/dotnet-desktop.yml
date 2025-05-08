@@ -81,10 +81,3 @@ jobs:
     - name: Execute unit tests
       run: dotnet test ${{ env.TEST_PROJECT }} --configuration Debug --no-build --logger "trx;LogFileName=test-results.trx"
 
-    # Публикация результатов тестов
-    - name: Publish test results
-      uses: actions/upload-artifact@v3
-      if: always()
-      with:
-        name: test-results
-        path: **/TestResults/*.trx
