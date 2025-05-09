@@ -68,8 +68,11 @@ jobs:
       with:
         dotnet-version: 8.0.x
         
-    - name: Restore dependencies
+    - name: Clean
+      run: dotnet clean ${{ env.Solution_Name }}
+
+    - name: Restore
       run: dotnet restore ${{ env.Solution_Name }}
-      
+
     - name: Build
       run: dotnet build ${{ env.Solution_Name }} --configuration ${{ matrix.configuration }}
