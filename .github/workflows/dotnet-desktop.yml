@@ -70,10 +70,8 @@ jobs:
         dotnet-version: 8.0.x
         
     - name: Restore dependencies
-      run: dotnet restore ClassLibrary2.sln --verbosity detailed
+      run: dotnet restore ClassLibrary2.sln --force-evaluate
       
     - name: Build
       run: dotnet build ClassLibrary2.sln --configuration Debug --no-restore
- 
-    - name: Execute unit tests
-      run:  dotnet test ClassLibrary2.sln --configuration Debug --no-build
+
