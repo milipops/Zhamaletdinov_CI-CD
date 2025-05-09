@@ -68,11 +68,9 @@ jobs:
       with:
         dotnet-version: 8.0.x
         
-    - name: Clean
-      run: dotnet clean ${{ env.Solution_Name }}
-
-    - name: Restore
-      run: dotnet restore ${{ env.Solution_Name }}
-
+    - name: Restore dependencies
+      run: dotnet restore ClassLibrary2.sln  # Явно восстанавливаем зависимости
     - name: Build
-      run: dotnet build ${{ env.Solution_Name }} --configuration ${{ matrix.configuration }}
+      run:  dotnet build ClassLibrary2.sln --configuration Debug --no-restore
+    - name: Execute unit tests
+      run:  dotnet test ClassLibrary2.sln --configuration Debug --no-restore
